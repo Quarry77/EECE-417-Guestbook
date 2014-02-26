@@ -38,17 +38,18 @@
 		  };
 		  map = new google.maps.Map(document.getElementById('map-canvas'),
 		      mapOptions);
-		
 		  // Try HTML5 geolocation
 		  if(navigator.geolocation) {
 		    navigator.geolocation.getCurrentPosition(function(position) {
+		    	document.getElementById("greetingLat").value = position.coords.latitude;
+		    	document.getElementById("greetingLong").value = position.coords.longitude;
 		      var pos = new google.maps.LatLng(position.coords.latitude,
 		                                       position.coords.longitude);
 		
 		      var infowindow = new google.maps.InfoWindow({
 		        map: map,
 		        position: pos,
-		        content: 'Your here :)'
+		        content: 'You'
 		      });
 		
 		      map.setCenter(pos);
@@ -123,17 +124,24 @@ to include your name with greetings you post.</p>
         <p>Messages in Guestbook '${fn:escapeXml(guestbookName)}'.</p>
         <%
         for (Entity greeting : greetings) {
-            pageContext.setAttribute("greeting_content",
-                                     greeting.getProperty("content"));
+            pageContext.setAttribute("greeting_content", greeting.getProperty("content"));
+            String position = "Unknown Position";
+            String latitude = greeting.getProperty("latitude").toString();
+            String longitude = greeting.getProperty("longitude").toString();
+            if(latitude != null && latitude.length() > 0 && longitude != null && longitude.length() > 0) {
+            	position = greeting.getProperty("latitude") + ", " + greeting.getProperty("longitude");
+            }
+            pageContext.setAttribute("greeting_position", position);
+            
             if (greeting.getProperty("user") == null) {
                 %>
-                <p>An anonymous person wrote:</p>
+                <p>An anonymous person (${greeting_position}) wrote:</p>
                 <%
             } else {
                 pageContext.setAttribute("greeting_user",
                                          greeting.getProperty("user"));
                 %>
-                <p><b>${fn:escapeXml(greeting_user.nickname)}</b> wrote:</p>
+                <p><b>${fn:escapeXml(greeting_user.nickname)}</b> (${greeting_position}) wrote:</p>
                 <%
             }
             %>
@@ -147,8 +155,10 @@ to include your name with greetings you post.</p>
       <div><textarea name="content" rows="3" cols="60"></textarea></div>
       <div><input type="submit" value="Post Greeting" /></div>
       <input type="hidden" name="guestbookName" value="${fn:escapeXml(guestbookName)}"/>
+      <input type="hidden" name="latitude" id="greetingLat"/>
+      <input type="hidden" name="longitude" id="greetingLong"/>
+      
     </form>
-
 	<div id="map-canvas" style="width: 60%; height: 60%"></div>
   </body>
 </html>

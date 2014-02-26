@@ -35,13 +35,18 @@ public class SignGuestbookServlet extends HttpServlet {
         // Greetings for a given Guestbook.  However, the write rate to each
         // Guestbook should be limited to ~1/second.
         String guestbookName = req.getParameter("guestbookName");
+        String latitude = req.getParameter("latitude");
+        String longitude = req.getParameter("longitude");
         Key guestbookKey = KeyFactory.createKey("Guestbook", guestbookName);
         String content = req.getParameter("content");
         Date date = new Date();
+        
         Entity greeting = new Entity("Greeting", guestbookKey);
         greeting.setProperty("user", user);
         greeting.setProperty("date", date);
         greeting.setProperty("content", content);
+        greeting.setProperty("latitude", latitude);
+        greeting.setProperty("longitude", longitude);
 
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         datastore.put(greeting);
